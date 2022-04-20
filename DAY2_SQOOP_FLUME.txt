@@ -1,0 +1,98 @@
+FLUME / SCOOP
+
+I.FLUME
+
+1. sudo yum install --assumeyes flume-ng
+
+2. sudo vim /etc/hadoop/conf/flume-conf.properties
+
+3. 
+
+agent1.sources = src1
+agent1.channels = ch1
+agent1.sinks = sink1
+agent1.sources.src1.type = exec
+agent1.sources.src1.command = tail -F /tmp/access_log
+agent1.sources.src1.channels = ch1
+agent1.channels.ch1.type = memory
+agent1.channels.ch1.capacity = 500
+agent1.sinks.sink1.type = hdfs
+agent1.sinks.sink1.hdfs.path = flume/collector1
+agent1.sinks.sink1.hdfs.filePrefix = access_log
+agent1.sinks.sink1.channel = ch1
+
+__ Save and exit by pressing escape key (Esc) and then selecting colon (:) and typing wq
+:wq
+
+4. 
+hdfs dfs -mkdir -p /user/root
+hdfs dfs -chown root /user/root
+hfds fs -mkdir -p flume/collector1
+
+5. Start additional 4 terminals on Elephant:
+
+6. In first terminal:
+
+# accesslog-gen.bash /tmp/access_log
+Leave it, and go to second terminal. It will be running on foreground
+
+7. Wait for 1 minute and in 2nd terminal, check logs are coming
+
+# ls -l /tmp/access*
+
+
+8. In 3rd terminal window start the source, it will run in foreground.
+
+# flume-ng agent --conf-file /etc/hadoop/conf/flume-conf.properties --name agent1
+
+9. In 4th terminal, check data coming in hdfs
+
+# hdfs dfs -ls flume/collector1
+
+10. Press CTRL+C in all 3 terminals.
+
+11. # rm -rf /tmp/access_log*
+
+
+
+-----------------------------------------------
+
+SCOOP
+
+1. Open terminal
+# mysql -u root -pHoney_0422
+
+2. mysql> DESCRIBE movie;
+
+3. mysql> SELECT * FROM movie LIMIT 5;
+
+4. mysql> DESCRIBE movierating;
+
+mysql> SELECT * FROM movierating LIMIT 5;
+
+userid | movieid | rating
+
+mysql> quit;
+
+From OS prompt ($)
+5. # sudo yum install --assumeyes sqoop
+
+
+6. # sudo ln -s /usr/share/java/mysql-connector-java.jar /usr/lib/sqoop/lib/
+
+
+7. # sqoop help
+
+
+8. # sqoop list-databases --connect jdbc:mysql://localhost --username 
+     root --password Honey_0422
+
+
+9. # sqoop list-tables --connect jdbc:mysql://localhost/movielens --     username training --password training
+
+
+10. # sqoop import --connect jdbc:mysql://localhost/movielens --table     movie --fields-terminated-by '\t' --username training --password     training
+
+11. # hdfs dfs -ls movie
+
+12. # hdfs dfs -tail movie/part-m-00000
